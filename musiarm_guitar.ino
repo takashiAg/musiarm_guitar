@@ -52,6 +52,57 @@ short int GyroX, GyroY, GyroZ;
 #define DM  {50,54,57,62}
 #define DsM {51,55,58,63}
 
+#define E7  {40,44,47,50}
+#define F7  {41,45,48,51}
+#define Fs7 {42,46,49,52}
+#define G7  {43,47,50,53}
+#define Gs7 {44,48,51,54}
+#define A7  {45,49,52,55}
+#define As7 {46,50,53,56}
+#define B7  {47,51,54,57}
+#define C7  {48,52,55,58}
+#define Cs7 {49,53,56,59}
+#define D7  {50,54,57,60}
+#define Ds7 {51,55,58,61}
+
+#define E6  {40,44,47,49}
+#define F6  {41,45,48,50}
+#define Fs6 {42,46,49,51}
+#define G6  {43,47,50,52}
+#define Gs6 {44,48,51,53}
+#define A6  {45,49,52,54}
+#define As6 {46,50,53,55}
+#define B6  {47,51,54,56}
+#define C6  {48,52,55,57}
+#define Cs6 {49,53,56,58}
+#define D6  {50,54,57,59}
+#define Ds6 {51,55,58,60}
+
+#define Eadd9  {40,44,47,54}
+#define Fadd9  {41,45,48,55}
+#define Fsadd9 {42,46,49,56}
+#define Gadd9  {43,47,50,57}
+#define Gsadd9 {44,48,51,58}
+#define Aadd9  {45,49,52,59}
+#define Asadd9 {46,50,53,60}
+#define Badd9  {47,51,54,61}
+#define Cadd9  {48,52,55,62}
+#define Csadd9 {49,53,56,63}
+#define Ddda9  {50,54,57,64}
+#define Dsadd9 {51,55,58,65}
+
+#define Esus4  {40,45,47,52}
+#define Fsus4  {41,46,48,53}
+#define Fssus4 {42,47,49,54}
+#define Gsus4  {43,48,50,55}
+#define Gssus4 {44,49,51,56}
+#define Asus4  {45,50,52,57}
+#define Assus4 {46,51,53,58}
+#define Bsus4  {47,52,54,59}
+#define Csus4  {48,53,55,60}
+#define Cssus4 {49,54,56,61}
+#define Dsus4  {50,55,57,62}
+#define Dssus4 {51,56,58,63}
 
 #define Em  {40,43,47,52}
 #define Fm  {41,44,48,53}
@@ -66,6 +117,19 @@ short int GyroX, GyroY, GyroZ;
 #define Dm  {50,53,57,62}
 #define Dsm {51,54,58,63}
 
+#define Em7  {40,43,47,50}
+#define Fm7  {41,44,48,51}
+#define Fsm7 {42,45,49,52}
+#define Gm7  {43,46,50,53}
+#define Gsm7 {44,47,51,54}
+#define Am7  {45,48,52,55}
+#define Asm7 {46,49,53,56}
+#define Bm7  {47,50,54,57}
+#define Cm7  {48,51,55,58}
+#define Csm7 {49,52,56,59}
+#define Dm7  {50,53,57,60}
+#define Dsm7 {51,54,58,61}
+
 #define E   40
 #define F   41
 #define Fs  42
@@ -79,7 +143,7 @@ short int GyroX, GyroY, GyroZ;
 #define D   50
 #define Ds  51
 
-byte mapping_byte[6][4] {Em, Am, Dm, GM, CM, FM} ;
+byte mapping_byte[16][4] {C7, Cs7, DM, EM, DsM, Dsadd9, F7, Fs7, AM, GsM, Gs6, Gsm7, BM, Bsus4, AsM, Assus4} ;
 //byte a[2][2]={{1,2},{1,2}};
 
 uint8_t midiPacket[] = {
@@ -150,10 +214,10 @@ float filterd_a0, filterd_a1, filterd_a2, filterd_a3;
 int a0_old = 0, a1_old = 0, a2_old = 0, a3_old = 0;
 void loop() {
 
-  int a0 = adc_read(0);
-  int a1 = adc_read(1);
-  int a2 = adc_read(2);
-  int a3 = adc_read(3);
+  int a3 = adc_read(0);
+  int a2 = adc_read(1);
+  int a1 = adc_read(2);
+  int a0 = adc_read(3);
   //  int a4 = adc_read(4);
   //  int a5 = adc_read(5);
   //  int a6 = adc_read(6);
@@ -302,12 +366,12 @@ uint8_t play(uint8_t oldnote, int analog, int &analog_old, byte note_init, byte 
     return oldnote;
   }
   analog_old = analog;
-  uint8_t note = map(analog, 500, 8192, 0, 24);
+  uint8_t note = map(analog, 670, 8192, 0, 24);
   if (!(note < 24)) {
     releasenote(oldnote);
     return 0;
   }
-  if (note < 6) {
+  if (note < 16) {
     note = mapping_byte[note][note_init] + bend;
   } else {
     note = note + note_init * 5 + note_satrt + bend;
