@@ -14,7 +14,7 @@
 // set SPI freqency 1MHz
 #define SPI_CLK 1000000
 
-#define MPU6050_ADDR_DEF 0x69
+#define MPU6050_ADDR_DEF 0x68
 byte MPU6050_ADDR = MPU6050_ADDR_DEF;
 #define MPU6050_AX  0x3B
 #define MPU6050_AY  0x3D
@@ -296,7 +296,7 @@ void loop() {
 void loop2(void *pvParameters) {
   delay(1000);
   //  i2c as a master
-  Wire.begin(21, 22);
+  Wire.begin(22, 21);
 
   //  wake it up
   Wire.beginTransmission(MPU6050_ADDR);
