@@ -143,7 +143,7 @@ short int GyroX, GyroY, GyroZ;
 #define D   50
 #define Ds  51
 
-byte mapping_byte[16][4] {C7, Cs7, DM, EM, DsM, Dsadd9, F7, Fs7, AM, GsM, Gs6, Gsm7, BM, Bsus4, AsM, Assus4} ;
+byte mapping_byte[16][4] {Em, Am, Dm, GM, CM, FM, AsM, Assus4, Em7, F7, Gs6, Gsm7, BM, Bsus4, AsM, Assus4} ;
 //byte a[2][2]={{1,2},{1,2}};
 
 uint8_t midiPacket[] = {
@@ -382,6 +382,11 @@ uint8_t play_code(uint8_t oldnote, int analog, int &analog_old, byte note_init, 
     releasenote(oldnote);
     return 0;
   }
+  if (note < 0) {
+    releasenote(oldnote);
+    return 0;
+  }
+  note = 9 - note;
   if (note < 11) {
     note = mapping_byte[note][note_init] + bend;
   } else {
@@ -415,7 +420,7 @@ uint8_t play(uint8_t oldnote, int analog, int &analog_old, byte note_init, byte 
     releasenote(oldnote);
     return 0;
   }
-  note=10-note;
+  note = 10 - note;
   note = note + note_init * 5 + note_satrt + bend;
   if (oldnote != note ) {
     releasenote(oldnote);
