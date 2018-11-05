@@ -6,10 +6,10 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-#define SPI1_CLK  32
-#define SPI1_MISO 33
-#define SPI1_MOSI 25
-#define SPI1_SS   26
+#define SPI1_CLK  14
+#define SPI1_MISO 12
+#define SPI1_MOSI 13
+#define SPI1_SS   27
 
 // set SPI freqency 1MHz
 #define SPI_CLK 1000000
@@ -208,27 +208,24 @@ uint8_t oldnote1 = 0;
 uint8_t oldnote2 = 0;
 uint8_t oldnote3 = 0;
 uint8_t oldnote4 = 0;
+uint8_t oldnote5 = 0;
+uint8_t oldnote6 = 0;
+uint8_t oldnote7 = 0;
+uint8_t oldnote8 = 0;
 int old_bend = 0;
 bool d_status = false;
 float filterd_a0, filterd_a1, filterd_a2, filterd_a3;
-int a0_old = 0, a1_old = 0, a2_old = 0, a3_old = 0;
+int a0_old = 0, a1_old = 0, a2_old = 0, a3_old = 0, a4_old = 0, a5_old = 0, a6_old = 0, a7_old = 0;
 void loop() {
 
-  int a3 = adc_read(0);
-  int a2 = adc_read(1);
-  int a1 = adc_read(2);
-  int a0 = adc_read(3);
-  //  int a4 = adc_read(4);
-  //  int a5 = adc_read(5);
-  //  int a6 = adc_read(6);
-  //  int a7 = adc_read(7);
-
-  //  float p = 0.2;
-  //  filterd_a0 = p * filterd_a0 + (1.0f - p) * a0;
-  //  filterd_a1 = p * filterd_a1 + (1.0f - p) * a1;
-  //  filterd_a2 = p * filterd_a2 + (1.0f - p) * a2;
-  //  filterd_a3 = p * filterd_a3 + (1.0f - p) * a3;
-
+  int a0 = adc_read(0);
+  int a1 = adc_read(1);
+  int a2 = adc_read(2);
+  int a3 = adc_read(3);
+  int a4 = adc_read(4);
+  int a5 = adc_read(5);
+  int a6 = adc_read(6);
+  int a7 = adc_read(7);
 
 
   int bend = constrain(map(abs(ax), 10000, 5000, 0, 3), 0, 3);
@@ -238,10 +235,15 @@ void loop() {
   //  int bend = 0;
   //  int velo = 100;
 
-  oldnote1 = play(oldnote1, a0, a0_old, 0, bend, velo);
-  oldnote2 = play(oldnote2, a1, a1_old, 1, bend, velo);
-  oldnote3 = play(oldnote3, a2, a2_old, 2, bend, velo);
-  oldnote4 = play(oldnote4, a3, a3_old, 3, bend, velo);
+  oldnote1 = play_code(oldnote1, a0, a0_old, 0, bend, velo);
+  oldnote2 = play_code(oldnote2, a1, a1_old, 1, bend, velo);
+  oldnote3 = play_code(oldnote3, a2, a2_old, 2, bend, velo);
+  oldnote4 = play_code(oldnote4, a3, a3_old, 3, bend, velo);
+
+  oldnote5 = play(oldnote5, a4, a4_old, 3, bend, velo);
+  oldnote6 = play(oldnote6, a5, a5_old, 2, bend, velo);
+  oldnote7 = play(oldnote7, a6, a6_old, 1, bend, velo);
+  oldnote8 = play(oldnote8, a7, a7_old, 0, bend, velo);
 
   Serial.print('\t');
 
@@ -257,6 +259,14 @@ void loop() {
   Serial.print('\t');
   Serial.print(a3);
   Serial.print('\t');
+  Serial.print(a4);
+  Serial.print('\t');
+  Serial.print(a5);
+  Serial.print('\t');
+  Serial.print(a6);
+  Serial.print('\t');
+  Serial.print(a7);
+  Serial.print('\t');
   Serial.print(oldnote1);
   Serial.print('\t');
   Serial.print(oldnote2);
@@ -264,12 +274,14 @@ void loop() {
   Serial.print(oldnote3);
   Serial.print('\t');
   Serial.print(oldnote4);
-  //  Serial.print('\t');
-  //  Serial.print(a5);
-  //  Serial.print('\t');
-  //  Serial.print(a6);
-  //  Serial.print('\t');
-  //  Serial.print(a7);
+  Serial.print('\t');
+  Serial.print(oldnote5);
+  Serial.print('\t');
+  Serial.print(oldnote6);
+  Serial.print('\t');
+  Serial.print(oldnote7);
+  Serial.print('\t');
+  Serial.print(oldnote8);
   Serial.print('\t');
   Serial.print(ax);
   Serial.print('\t');
@@ -359,23 +371,52 @@ void loop2(void *pvParameters) {
     delay(1);
   }
 }
+uint8_t play_code(uint8_t oldnote, int analog, int &analog_old, byte note_init, byte bend, byte velo) {
 
+  if (abs(analog_old - analog) < 100 && (bend == old_bend)) {
+    return oldnote;
+  }
+  analog_old = analog;
+  uint8_t note = map(analog, 0, 8192, -1, 10);
+  if (!(note < 11)) {
+    releasenote(oldnote);
+    return 0;
+  }
+  if (note < 11) {
+    note = mapping_byte[note][note_init] + bend;
+  } else {
+    note = note + note_init * 5 + note_satrt + bend;
+  }
+  if (oldnote != note ) {
+    releasenote(oldnote);
+  }
+  if (oldnote != note && note >= note_satrt + note_init + bend) {
+    playnote(note, velo);
+    analog_old = analog;
+    return note;
+  }
+  if (note < note_satrt + note_init + bend) {
+    return note;
+  }
+  return oldnote;
+}
 uint8_t play(uint8_t oldnote, int analog, int &analog_old, byte note_init, byte bend, byte velo) {
 
   if (abs(analog_old - analog) < 100 && (bend == old_bend)) {
     return oldnote;
   }
   analog_old = analog;
-  uint8_t note = map(analog, 670, 8192, 0, 24);
+  uint8_t note = map(analog, 0, 8192, -1, 10);
   if (!(note < 24)) {
     releasenote(oldnote);
     return 0;
   }
-  if (note < 16) {
-    note = mapping_byte[note][note_init] + bend;
-  } else {
-    note = note + note_init * 5 + note_satrt + bend;
+  if (note < 0) {
+    releasenote(oldnote);
+    return 0;
   }
+  note=10-note;
+  note = note + note_init * 5 + note_satrt + bend;
   if (oldnote != note ) {
     releasenote(oldnote);
   }
