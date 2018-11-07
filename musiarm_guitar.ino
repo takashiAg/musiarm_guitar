@@ -142,8 +142,8 @@ short int GyroX, GyroY, GyroZ;
 #define Cs  49
 #define D   50
 #define Ds  51
-
-byte mapping_byte[16][4] {C7, Cs7, DM, EM, DsM, Dsadd9, F7, Fs7, AM, GsM, Gs6, Gsm7, BM, Bsus4, AsM, Assus4} ;
+//Bsus4 が２個あってAbが無い
+byte mapping_byte[16][4] {EM, AM, Bsus4, Cs7, BM, Fs7, DM, C7, Gs6, Dsadd9, Assus4, GsM, Gsm7, F7, GsM, AsM} ;
 //byte a[2][2]={{1,2},{1,2}};
 
 uint8_t midiPacket[] = {
